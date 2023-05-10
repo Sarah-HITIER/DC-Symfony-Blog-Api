@@ -39,28 +39,52 @@ class ArticleRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Article[] Returns an array of Article objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('a.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findOneById($value)
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.id, a.title, a.content, c.id as category_id, u.id as author_id, a.creationDate, a.state, a.publicationDate')
+            ->leftJoin('a.category', 'c')
+            ->leftJoin('a.author', 'u')
+            ->andWhere('a.id = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
-//    public function findOneBySomeField($value): ?Article
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findByCategory($category)
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.id, a.title, a.content, c.id as category_id, u.id as author_id, a.creationDate, a.state, a.publicationDate')
+            ->leftJoin('a.category', 'c')
+            ->leftJoin('a.author', 'u')
+            ->andWhere('c.id = :val')
+            ->setParameter('val', $category)
+            ->getQuery()
+            ->getResult();
+    }
+
+    //    /**
+    //     * @return Article[] Returns an array of Article objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('a')
+    //            ->andWhere('a.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('a.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
+
+    //    public function findOneBySomeField($value): ?Article
+    //    {
+    //        return $this->createQueryBuilder('a')
+    //            ->andWhere('a.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
 }

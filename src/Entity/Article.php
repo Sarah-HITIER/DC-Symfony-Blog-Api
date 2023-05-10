@@ -44,6 +44,8 @@ class Article
 
     public function __construct()
     {
+        $this->creationDate = new \DateTime();
+        $this->state = false;
         $this->comments = new ArrayCollection();
     }
 

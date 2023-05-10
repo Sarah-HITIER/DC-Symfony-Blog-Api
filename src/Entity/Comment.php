@@ -31,6 +31,12 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?Article $article = null;
 
+    public function __construct()
+    {
+        $this->publicationDate = new \DateTime();
+        $this->state = true;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

@@ -36,7 +36,8 @@ class UserController extends AbstractController
         $payload = [
             'iat' => time(), // Issued at (date de création)
             'exp' => time() + 3600, // Expiration (date de création + x secondes)
-            'roles' => $user->getRoles()
+            'roles' => $user->getRoles(),
+            'user_id' => $user->getId(),
         ];
 
         $jwt = JWT::encode($payload, $key, 'HS256');
