@@ -30,4 +30,15 @@ class Validator
 			return true;
 		}
 	}
+
+	public function checkRequiredParameters($request, $requiredParameters)
+	{
+		$missingParameters = [];
+		foreach ($requiredParameters as $parameter) {
+			if ($request->get($parameter) === null) {
+				$missingParameters[] = $parameter;
+			}
+		}
+		return $missingParameters;
+	}
 }

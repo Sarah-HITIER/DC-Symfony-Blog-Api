@@ -25,6 +25,6 @@ class TokenValidator
                 return ['message' => $e->getMessage(), 'status' => 403];
             }
         }
-        return ['message' => "No token provided", 'status' => 403];
+        return ['message' => "No token provided", 'status' => 400];
     }
 }

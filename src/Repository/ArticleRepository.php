@@ -54,7 +54,7 @@ class ArticleRepository extends ServiceEntityRepository
     public function findByCategory($category)
     {
         return $this->createQueryBuilder('a')
-            ->select('a.id, a.title, a.content, c.id as category_id, u.id as author_id, a.creationDate, a.state, a.publicationDate')
+            ->select('a.id, a.title, a.content, u.id as author_id, a.creationDate, a.state, a.publicationDate')
             ->leftJoin('a.category', 'c')
             ->leftJoin('a.author', 'u')
             ->andWhere('c.id = :val')

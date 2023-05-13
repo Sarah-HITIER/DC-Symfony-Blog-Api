@@ -19,7 +19,7 @@ class Category
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank]
     #[Assert\Length(
-        min: 1,
+        min: 2,
         max: 100,
         minMessage: 'The category title must be at least {{ limit }} characters long',
         maxMessage: 'The category title cannot be longer than {{ limit }} characters',

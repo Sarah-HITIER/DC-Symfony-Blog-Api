@@ -16,9 +16,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/article')]
 class ArticleController extends AbstractController
 {
-    #[Route('/article/{id}', name: 'app_article_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_article_show', methods: ['GET'])]
     public function show(int $id, EntityManagerInterface $em): Response
     {
         $article = $em->getRepository(Article::class)->findOneById($id);
@@ -26,12 +27,11 @@ class ArticleController extends AbstractController
             return new JsonResponse('Article introuvable', 404);
         }
 
-        $comments = $em->getRepository(Comment::class)->findBy(['article' => $article]);
-        return new JsonResponse([$article, $comments], 200);
-        // return new JsonResponse($article, 200);
+        $comments = $em->getRepository(Comment::class)->findByArticle($article['id']);
+        return new JsonResponse(['article' => $article, 'comments' => $comments], 200);
     }
 
-    #[Route('/article', name: 'app_article_create', methods: ['POST'])]
+    #[Route('', name: 'app_article_create', methods: ['POST'])]
     public function create(
         Request $request,
         TokenValidator $tokenValidator,
@@ -49,9 +49,16 @@ class ArticleController extends AbstractController
         // Check if user is admin
         $isAdmin = $userValidator->isAdmin($tokenResponse['decoded']);
         if (!$isAdmin) {
-            return new JsonResponse('Access denied', 403);
+            return new JsonResponse('Accès refusé', 403);
         }
 
+        // Check if all parameters are provided
+        $missingParameters = $validator->checkRequiredParameters($request, ['title', 'content', 'category']);
+        if (count($missingParameters) > 0) {
+            return new JsonResponse('Paramètres manquants : ' . implode(", ", $missingParameters), 400);
+        }
+
+        // Check if category exists
         $category = $em->getRepository(Category::class)->findOneBy(['id' => $request->get('category')]);
         if ($category == null) {
             return new JsonResponse('Catégorie introuvable', 404);
@@ -75,10 +82,10 @@ class ArticleController extends AbstractController
         $em->persist($article);
         $em->flush();
 
-        return new JsonResponse('success', 201);
+        return new JsonResponse('Article créé', 201);
     }
 
-    #[Route('/article/{id}', name: 'app_article_update', methods: ['PATCH'])]
+    #[Route('/{id}', name: 'app_article_update', methods: ['PATCH'])]
     public function update(
         Request $request,
         TokenValidator $tokenValidator,
@@ -101,7 +108,7 @@ class ArticleController extends AbstractController
         // Check if user is admin
         $isAdmin = $userValidator->isAdmin($tokenResponse['decoded']);
         if (!$isAdmin) {
-            return new JsonResponse('Access denied', 403);
+            return new JsonResponse('Accès refusé', 403);
         }
 
         // On récupère et vérifie les infos envoyées en body
@@ -146,10 +153,10 @@ class ArticleController extends AbstractController
         } else {
             return new JsonResponse('Aucune donnée reçue', 200);
         }
-        return new JsonResponse('Success', 201);
+        return new JsonResponse('Article modifié', 200);
     }
 
-    #[Route('/article/{id}', name: 'app_article_delete', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'app_article_delete', methods: ['DELETE'])]
     public function delete(
         Request $request,
         TokenValidator $tokenValidator,
@@ -171,12 +178,12 @@ class ArticleController extends AbstractController
         // Check if user is admin
         $isAdmin = $userValidator->isAdmin($tokenResponse['decoded']);
         if (!$isAdmin) {
-            return new JsonResponse('Access denied', 403);
+            return new JsonResponse('Accès refusé', 403);
         }
 
         $em->remove($article);
         $em->flush();
 
-        return new JsonResponse('Success', 200);
+        return new JsonResponse('Article supprimé', 204);
     }
 }

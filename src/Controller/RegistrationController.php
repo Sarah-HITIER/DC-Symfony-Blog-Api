@@ -24,7 +24,7 @@ class RegistrationController extends AbstractController
         Validator $validator
     ): Response {
         $user = new User();
-        $user->setRoles(['ROLE_ADMIN']);
+        // $user->setRoles(['ROLE_ADMIN']);
         $user->setEmail($request->get('email'))
             ->setPlainPassword($request->get('pwd'))
             ->setName($request->get('name'))

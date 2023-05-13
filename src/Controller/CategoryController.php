@@ -17,9 +17,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class CategoryController extends AbstractController
 {
     #[Route('/categories', name: 'app_category', methods: ['GET'])]
-    public function index(EntityManagerInterface $em): Response
+    public function index(Request $request, EntityManagerInterface $em): Response
     {
-        $categories = $em->getRepository(Category::class)->findLastItems();
+        $limit = $request->get('limit') ?? 3;
+        $categories = $em->getRepository(Category::class)->findLastItems($limit);
         return new JsonResponse($categories, 200);
     }
 
@@ -32,7 +33,7 @@ class CategoryController extends AbstractController
         }
 
         $articles = $em->getRepository(Article::class)->findByCategory($category['id']);
-        return new JsonResponse([$category, $articles], 200);
+        return new JsonResponse(["category" => $category, "articles" => $articles], 200);
     }
 
     #[Route('/category', name: 'app_category_create', methods: ['POST'])]
@@ -53,7 +54,13 @@ class CategoryController extends AbstractController
         // Check if user is admin
         $isAdmin = $userValidator->isAdmin($tokenResponse['decoded']);
         if (!$isAdmin) {
-            return new JsonResponse('Access denied', 403);
+            return new JsonResponse('Accès refusé', 403);
+        }
+
+        // Check if all parameters are provided
+        $missingParameters = $validator->checkRequiredParameters($request, ['name']);
+        if (count($missingParameters) > 0) {
+            return new JsonResponse('Paramètres manquants : ' . implode(", ", $missingParameters), 400);
         }
 
         $category = new Category();
@@ -68,7 +75,7 @@ class CategoryController extends AbstractController
         $em->persist($category);
         $em->flush();
 
-        return new JsonResponse('success', 201);
+        return new JsonResponse('Catégorie créée', 201);
     }
 
     #[Route('/category/{id}', name: 'app_category_update', methods: ['PATCH'])]
@@ -94,7 +101,7 @@ class CategoryController extends AbstractController
         // Check if user is admin
         $isAdmin = $userValidator->isAdmin($tokenResponse['decoded']);
         if (!$isAdmin) {
-            return new JsonResponse('Access denied', 403);
+            return new JsonResponse('Accès refusé', 403);
         }
 
         // On récupère et vérifie les infos envoyées en body
@@ -116,7 +123,7 @@ class CategoryController extends AbstractController
         } else {
             return new JsonResponse('Aucune donnée reçue', 200);
         }
-        return new JsonResponse('Success', 201);
+        return new JsonResponse('Catégorie modifiée', 200);
     }
 
     #[Route('/category/{id}', name: 'app_category_delete', methods: ['DELETE'])]
@@ -141,12 +148,12 @@ class CategoryController extends AbstractController
         // Check if user is admin
         $isAdmin = $userValidator->isAdmin($tokenResponse['decoded']);
         if (!$isAdmin) {
-            return new JsonResponse('Access denied', 403);
+            return new JsonResponse('Accès refusé', 403);
         }
 
         $em->remove($category);
         $em->flush();
 
-        return new JsonResponse('success', 200);
+        return new JsonResponse('Catégorie supprimée', 204);
     }
 }

@@ -39,7 +39,7 @@ class CategoryRepository extends ServiceEntityRepository
         }
     }
 
-    public function findLastItems(int $limit = 3): array
+    public function findLastItems(int $limit): array
     {
         return $this->createQueryBuilder('c')
             ->select('c.id, c.title')
