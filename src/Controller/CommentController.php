@@ -95,10 +95,6 @@ class CommentController extends AbstractController
             return new JsonResponse('Accès refusé', 403);
         }
 
-        if ($request->get('comment') != null) {
-            return new JsonResponse('Vous pouvez uniquement modifier le statut du commentaire', 403);
-        }
-
         $params = 0;
         if ($request->get('state') != null) {
             $params++;
